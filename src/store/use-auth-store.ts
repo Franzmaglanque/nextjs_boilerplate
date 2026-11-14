@@ -1,15 +1,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-export type UserRole = 'STAFF' | 'ENCODER' | 'QA';
-export type UserCompany = 'Royal Cargo Inc.' | 'Puregold Price Club Inc.';
-
 export interface AuthUserData {
-  id: number;
+  id: number | string;
   username: string;
   fullName: string;
-  role: UserRole;
-  company: UserCompany;
+  role?: string;
+  department?: string;
+  email?: string;
+  [key: string]: unknown;
 }
 
 interface AuthState {
@@ -30,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ token: null, user: null, isAuthenticated: false }),
     }),
     {
-      name: 'rci-cms-auth',
+      name: 'app-auth-storage',
       storage: createJSONStorage(() => localStorage),
     }
   )

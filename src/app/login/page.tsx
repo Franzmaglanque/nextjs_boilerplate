@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../store/use-auth-store';
 import { apiClient } from '../../lib/api-client';
-import { Truck, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,11 +30,11 @@ export default function LoginPage() {
         password: password.trim(),
       });
 
-      // Backend returns formatResponse: { status, message, data: { token, user } }
-      const authData = res.data;
+      // Standard API response { data: { token, user } } or direct envelope
+      const authData = res.data || res;
       if (authData?.token && authData?.user) {
         setAuth(authData.token, authData.user);
-        router.replace('/dispatch');
+        router.replace('/dashboard');
       } else {
         throw new Error('Invalid authentication response from server');
       }
@@ -50,14 +50,14 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl">
         {/* Header Branding */}
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1E5631] text-[#F4B41A] shadow-md">
-            <Truck className="h-8 w-8" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1E5631] text-emerald-100 shadow-md">
+            <ShieldCheck className="h-8 w-8" />
           </div>
           <h1 className="mt-4 text-xl font-black tracking-tight text-slate-900">
-            RCI MEAT YIELD SYSTEM
+            Enterprise Portal
           </h1>
           <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-[#1E5631]">
-            Puregold Dispatch & Ingestion CMS
+            Sign in to your account
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
-              Username
+              Username / Employee ID
             </label>
             <div className="relative mt-1">
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -81,9 +81,9 @@ export default function LoginPage() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. encoder_rci"
+                placeholder="Enter username"
                 required
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:border-[#1E5631] focus:bg-white focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:border-[#1E5631] focus:bg-white focus:outline-none transition"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:border-[#1E5631] focus:bg-white focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm text-slate-900 focus:border-[#1E5631] focus:bg-white focus:outline-none transition"
               />
             </div>
           </div>
@@ -108,16 +108,21 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-2 flex w-full items-center justify-center space-x-2 rounded-lg bg-[#1E5631] py-3 text-sm font-bold text-white hover:bg-[#143d22] transition disabled:opacity-50 shadow-md"
+            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-[#1E5631] py-2.5 text-sm font-bold text-white hover:bg-[#184527] focus:ring-2 focus:ring-[#1E5631] focus:ring-offset-2 disabled:opacity-60 transition shadow-sm cursor-pointer"
           >
-            <span>{isLoading ? 'Authenticating...' : 'Sign In to Portal'}</span>
-            {!isLoading && <ArrowRight className="h-4 w-4 text-[#F4B41A]" />}
+            {isLoading ? (
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                <span>Sign In</span>
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </form>
 
-        {/* Footer info */}
-        <div className="mt-8 border-t border-slate-100 pt-4 text-center text-[11px] text-slate-400">
-          Royal Cargo Inc. Cold Storage & Processing Logistics
+        <div className="mt-6 text-center text-xs text-slate-400">
+          Secure enterprise session management
         </div>
       </div>
     </div>

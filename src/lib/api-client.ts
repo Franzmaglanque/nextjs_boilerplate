@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/use-auth-store';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const apiClient = axios.create({
   baseURL,
@@ -22,10 +22,10 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: unwrap Fastify standard envelope { status, message, data }
+// Response interceptor: unwrap backend standard envelope { status, message, data }
 apiClient.interceptors.response.use(
   (response) => {
-    // If backend returns { status: 'success', data: ... }
+    // If backend returns { status: 'success', data: ... } or { data: ... }
     if (response.data && typeof response.data === 'object' && 'data' in response.data) {
       return response.data;
     }
@@ -33,7 +33,6 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (typeof window !== 'undefined' && error.response?.status === 401) {
-      // Token expired or invalid
       useAuthStore.getState().logout();
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
@@ -41,9 +40,10 @@ apiClient.interceptors.response.use(
     }
 
     const errorMsg =
+      error.response?.data?.detail ||
       error.response?.data?.message ||
       error.message ||
-      'An unexpected error occurred while communicating with the backend API.';
+      'An unexpected error occurred while communicating with the server.';
     return Promise.reject(new Error(errorMsg));
   }
 );

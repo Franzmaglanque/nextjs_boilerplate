@@ -5,20 +5,26 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppStore } from '../../store/use-app-store';
 import { useAuthStore } from '../../store/use-auth-store';
-import { NAV_ITEMS } from '../../config/navigation';
+import { NAV_ITEMS, NavItem } from '../../config/navigation';
 import {
-  Truck,
-  Printer,
-  FileSpreadsheet,
+  LayoutDashboard,
+  Layers,
+  FileText,
+  Settings,
+  Users,
   ChevronLeft,
   ChevronRight,
   LogOut,
   User,
+  ShieldCheck,
 } from 'lucide-react';
 
-const iconMap = {
-  Printer: Printer,
-  FileSpreadsheet: FileSpreadsheet,
+const iconMap: Record<NavItem['iconName'], React.ComponentType<{ className?: string }>> = {
+  LayoutDashboard,
+  Layers,
+  FileText,
+  Settings,
+  Users,
 };
 
 export default function Sidebar() {
@@ -32,9 +38,9 @@ export default function Sidebar() {
     router.replace('/login');
   };
 
-  // Filter menus based on user's role (Approach A)
   const accessibleItems = NAV_ITEMS.filter((item) => {
-    if (!user) return true;
+    if (!item.allowedRoles || item.allowedRoles.length === 0) return true;
+    if (!user?.role) return false;
     return item.allowedRoles.includes(user.role);
   });
 
@@ -48,21 +54,21 @@ export default function Sidebar() {
       <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
         {!sidebarCollapsed ? (
           <div className="flex items-center space-x-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1E5631] text-[#F4B41A] font-bold shadow-sm">
-              <Truck className="h-5 w-5" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1E5631] text-emerald-100 font-bold shadow-sm">
+              <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
               <div className="font-bold text-sm tracking-tight text-slate-800 leading-tight">
-                RCI MEAT YIELD
+                Enterprise Portal
               </div>
               <div className="text-[10px] font-bold tracking-wider text-[#1E5631] uppercase">
-                Puregold Dispatch CMS
+                Management Console
               </div>
             </div>
           </div>
         ) : (
-          <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-[#1E5631] text-[#F4B41A] font-bold">
-            <Truck className="h-5 w-5" />
+          <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg bg-[#1E5631] text-emerald-100 font-bold">
+            <ShieldCheck className="h-5 w-5" />
           </div>
         )}
 
@@ -79,13 +85,13 @@ export default function Sidebar() {
       <nav className="flex-1 space-y-1.5 p-3">
         {!sidebarCollapsed && (
           <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Outbound Operations
+            Navigation
           </div>
         )}
 
         {accessibleItems.map((item) => {
-          const Icon = iconMap[item.iconName] || Printer;
-          const isActive = pathname === item.href || (item.href === '/dispatch' && pathname === '/');
+          const Icon = iconMap[item.iconName] || Layers;
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <Link
@@ -98,7 +104,7 @@ export default function Sidebar() {
               }`}
               title={sidebarCollapsed ? item.title : undefined}
             >
-              <Icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-[#F4B41A]' : 'text-slate-400'}`} />
+              <Icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-emerald-200' : 'text-slate-400'}`} />
               {!sidebarCollapsed && <span>{item.title}</span>}
             </Link>
           );
@@ -115,11 +121,15 @@ export default function Sidebar() {
                   <User className="h-4 w-4" />
                 </div>
                 <div className="truncate text-xs">
-                  <div className="font-bold text-slate-800 truncate">{user?.fullName || 'Logged In'}</div>
+                  <div className="font-bold text-slate-800 truncate">{user?.fullName || 'Active User'}</div>
                   <div className="flex items-center space-x-1.5 text-[10px] text-slate-500 font-mono">
-                    <span className="font-semibold text-[#1E5631]">{user?.role || 'STAFF'}</span>
-                    <span>·</span>
-                    <span className="truncate">{user?.company === 'Royal Cargo Inc.' ? 'RCI' : 'Puregold'}</span>
+                    <span className="font-semibold text-[#1E5631]">{user?.role || 'User'}</span>
+                    {user?.department && (
+                      <>
+                        <span>·</span>
+                        <span className="truncate">{user.department}</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

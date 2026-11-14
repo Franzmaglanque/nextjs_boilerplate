@@ -4,8 +4,8 @@ import QueryProvider from '../lib/query-provider';
 import AuthGuard from '../components/auth/auth-guard';
 
 export const metadata: Metadata = {
-  title: 'Puregold RCI - Outbound Dispatch & Yield CMS',
-  description: 'Outbound PO Fulfillment and Delivery Receipt Printing System for Puregold Meat Cutting Facility',
+  title: 'Enterprise Management Portal',
+  description: 'Enterprise Web Application Dashboard & Management System',
 };
 
 export default function RootLayout({
